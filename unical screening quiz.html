@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UNICAL Graduate School Screening — Practice</title>
+<style>
+  :root{
+    --ink:#20232b;
+    --paper:#f2ede1;
+    --paper-deep:#e7dfc9;
+    --navy:#132038;
+    --navy-2:#1c2f4f;
+    --gold:#b8862f;
+    --gold-light:#d9a94c;
+    --good:#3f6b4a;
+    --bad:#9c3d34;
+    --line: rgba(19,32,56,0.14);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--navy);
+    background-image:
+      radial-gradient(circle at 15% 10%, rgba(217,169,76,0.08), transparent 45%),
+      radial-gradient(circle at 90% 85%, rgba(217,169,76,0.06), transparent 40%);
+    min-height:100vh;
+    font-family: Georgia, 'Iowan Old Style', 'Palatino Linotype', serif;
+    color:var(--ink);
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding: 28px 14px 60px;
+  }
+  .wrap{ width:100%; max-width:640px; }
+
+  .masthead{
+    text-align:center;
+    color:var(--paper);
+    margin-bottom:18px;
+  }
+  .masthead .crest{
+    font-family: 'Trebuchet MS', sans-serif;
+    letter-spacing:0.14em;
+    font-size:11px;
+    color:var(--gold-light);
+    text-transform:uppercase;
+  }
+  .masthead h1{
+    font-size:22px;
+    margin:6px 0 2px;
+    font-weight:normal;
+    letter-spacing:0.01em;
+  }
+  .masthead .sub{
+    font-size:13px;
+    color:rgba(242,237,225,0.65);
+    font-style:italic;
+  }
+
+  .card{
+    background:var(--paper);
+    border-radius:2px;
+    box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+    position:relative;
+    overflow:hidden;
+    border:1px solid rgba(0,0,0,0.06);
+  }
+  .card::before{
+    content:"";
+    position:absolute; top:0; left:0; right:0; height:5px;
+    background:linear-gradient(90deg, var(--navy), var(--gold) 50%, var(--navy));
+  }
+
+  .progress-track{
+    height:3px; background:var(--line); width:100%;
+  }
+  .progress-fill{
+    height:100%; background:var(--gold); transition: width 0.35s ease;
+  }
+
+  .content{ padding:26px 26px 22px; }
+
+  .meta-row{
+    display:flex; justify-content:space-between; align-items:baseline;
+    font-family:'Trebuchet MS', sans-serif;
+    font-size:12px; letter-spacing:0.05em; color:#6b6250;
+    margin-bottom:14px;
+  }
+  .meta-row .num{ color:var(--navy); font-weight:bold; }
+
+  .question{
+    font-size:19px; line-height:1.5; margin:0 0 20px;
+    color:var(--navy);
+  }
+
+  .options{ display:flex; flex-direction:column; gap:10px; }
+  .opt{
+    display:flex; align-items:flex-start; gap:12px;
+    text-align:left;
+    background:transparent;
+    border:1px solid var(--line);
+    border-radius:3px;
+    padding:12px 14px;
+    font-family: Georgia, serif;
+    font-size:15.5px;
+    color:var(--ink);
+    cursor:pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .opt:hover:not(:disabled){ border-color:var(--gold); background:rgba(184,134,47,0.06); }
+  .opt:disabled{ cursor:default; }
+  .opt .letter{
+    flex:0 0 auto;
+    width:22px; height:22px;
+    border:1px solid var(--navy);
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Trebuchet MS', sans-serif;
+    font-size:12px; color:var(--navy);
+  }
+  .opt.correct{ border-color:var(--good); background:rgba(63,107,74,0.1); }
+  .opt.correct .letter{ background:var(--good); border-color:var(--good); color:#fff; }
+  .opt.wrong{ border-color:var(--bad); background:rgba(156,61,52,0.08); }
+  .opt.wrong .letter{ background:var(--bad); border-color:var(--bad); color:#fff; }
+  .opt.dim{ opacity:0.5; }
+
+  .feedback{
+    margin-top:16px; min-height:20px;
+    font-family:'Trebuchet MS', sans-serif;
+    font-size:13px; letter-spacing:0.02em;
+  }
+  .feedback.correct{ color:var(--good); }
+  .feedback.wrong{ color:var(--bad); }
+
+  .next-row{ margin-top:18px; display:flex; justify-content:flex-end; }
+  .next-btn{
+    font-family:'Trebuchet MS', sans-serif;
+    background:var(--navy); color:var(--paper);
+    border:none; padding:10px 20px; border-radius:2px;
+    font-size:13px; letter-spacing:0.05em; cursor:pointer;
+    opacity:0; pointer-events:none; transition:opacity 0.2s;
+  }
+  .next-btn.show{ opacity:1; pointer-events:auto; }
+  .next-btn:hover{ background:var(--navy-2); }
+
+  .score-row{
+    font-family:'Trebuchet MS', sans-serif;
+    font-size:12px; color:#6b6250; text-align:center;
+    padding:10px 0 0;
+  }
+
+  /* Results screen */
+  .results{ padding:38px 30px 34px; text-align:center; }
+  .results .tally{
+    font-size:56px; color:var(--navy); font-weight:normal;
+    margin:6px 0 0;
+  }
+  .results .tally small{ font-size:22px; color:#8a7f68; }
+  .results .label{
+    font-family:'Trebuchet MS', sans-serif;
+    text-transform:uppercase; letter-spacing:0.14em; font-size:11px;
+    color:var(--gold);
+  }
+  .results .remark{
+    margin:16px auto 0; max-width:420px;
+    font-size:15.5px; color:#4a4436; line-height:1.55; font-style:italic;
+  }
+  .results .bar-wrap{
+    margin:24px auto 0; max-width:420px;
+  }
+  .results .cat{
+    display:flex; justify-content:space-between; align-items:center;
+    font-family:'Trebuchet MS', sans-serif; font-size:12.5px; color:#4a4436;
+    margin-bottom:8px; gap:10px;
+  }
+  .results .cat .barbg{
+    flex:1; height:6px; background:var(--line); border-radius:3px; overflow:hidden;
+  }
+  .results .cat .barfill{ height:100%; background:var(--gold); }
+  .results .actions{ margin-top:26px; display:flex; gap:10px; justify-content:center; }
+  .btn-ghost, .btn-solid{
+    font-family:'Trebuchet MS', sans-serif; font-size:13px; letter-spacing:0.04em;
+    padding:11px 20px; border-radius:2px; cursor:pointer;
+  }
+  .btn-solid{ background:var(--navy); color:var(--paper); border:none; }
+  .btn-solid:hover{ background:var(--navy-2); }
+  .btn-ghost{ background:transparent; color:var(--navy); border:1px solid var(--navy); }
+  .btn-ghost:hover{ background:rgba(19,32,56,0.06); }
+
+  .review{ text-align:left; margin-top:28px; border-top:1px solid var(--line); padding-top:18px; }
+  .review h3{
+    font-family:'Trebuchet MS', sans-serif; font-size:12px; letter-spacing:0.08em;
+    text-transform:uppercase; color:#8a7f68; margin:0 0 12px;
+  }
+  .review-item{
+    font-size:14px; padding:10px 0; border-bottom:1px solid var(--line);
+  }
+  .review-item:last-child{ border-bottom:none; }
+  .review-item .rq{ color:var(--navy); margin-bottom:4px; }
+  .review-item .ra{ font-family:'Trebuchet MS', sans-serif; font-size:12.5px; }
+  .review-item .ra.miss{ color:var(--bad); }
+  .review-item .ra .correctline{ color:var(--good); }
+
+  @media (max-width:480px){
+    .content{ padding:20px 18px 18px; }
+    .question{ font-size:17px; }
+    .opt{ font-size:14.5px; padding:11px 12px; }
+    .results{ padding:30px 18px 26px; }
+    .results .tally{ font-size:44px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="masthead">
+    <div class="crest">University of Calabar &middot; Graduate School</div>
+    <h1>Supplementary Admission Screening</h1>
+    <div class="sub">Practice run &middot; 18th March 2013 paper</div>
+  </div>
+
+  <div class="card" id="card">
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="content" id="content"></div>
+  </div>
+  <div class="score-row" id="scoreRow"></div>
+</div>
+
+<script>
+const QUESTIONS = [{"q": "The shortage of petrol was a perennial problem.", "opts": ["a recurring", "a seasonal", "an annual", "an incurable"], "a": 0}, {"q": "Things may change soon but at the moment, our economic situation is precarious.", "opts": ["redeemable", "buoyant", "uncertain", "unattractive"], "a": 2}, {"q": "He went through fire, before he qualified as an engineer.", "opts": ["had a fire accident", "made a lot of fire", "suffered a lot", "required a lot of fire"], "a": 2}, {"q": "He took exception to Margaret's remark.", "opts": ["was delighted", "was excited by", "got demoralized", "objected to"], "a": 3}, {"q": "Nigeria has been playing a vital role in the political and economic development of Africa.", "opts": ["creditable", "crucial", "respectable", "laudable"], "a": 1}, {"q": "The judge blamed the plaintiff for misleading the court. (opposite of 'plaintiff')", "opts": ["defendant", "complainant", "accused", "prosecution"], "a": 0}, {"q": "The appearance of the pall-bearers was extremely fascinating. (opposite of 'fascinating')", "opts": ["magnetic", "un-organized", "interesting", "repulsive"], "a": 3}, {"q": "The parcel was delivered intact. (opposite of 'intact')", "opts": ["promptly", "damaged", "late", "hot"], "a": 1}, {"q": "Bruno was a mindless criminal. (opposite of 'mindless')", "opts": ["strong", "mindful", "feeling", "memorable"], "a": 1}, {"q": "The committee considered the offence trivial. (opposite of 'trivial')", "opts": ["insignificant", "significant", "sinful", "gentle"], "a": 1}, {"q": "I was _____ hearing distance of the speaker.", "opts": ["on", "at", "within", "in"], "a": 2}, {"q": "One would wish _____ missed that opportunity to be present at the graduation hall.", "opts": ["to have not", "for having not", "to having", "not to have"], "a": 3}, {"q": "The ceremony was rounded _____ very late.", "opts": ["up", "off", "of", "out"], "a": 1}, {"q": "_____ guest enjoyed my birthday party.", "opts": ["Some of the", "All the", "Every", "Those very"], "a": 2}, {"q": "The _____ Affairs Officer is expecting all of us in the dining room.", "opts": ["Student", "Student's", "Students", "Students'"], "a": 3}, {"q": "Universal suffrage means", "opts": ["adult participation in politics", "giving voting rights to women above the age of 21", "property ownership", "the right of qualified adult to vote"], "a": 3}, {"q": "A body of people and institution that make and enforce laws for a particular society is called", "opts": ["government", "democracy", "anarchy", "dictatorship"], "a": 0}, {"q": "The final stage in the process of enacting legislature is", "opts": ["guillotine", "assent", "notification", "final reading"], "a": 1}, {"q": "Diplomatic missions among the commonwealth member states are referred to as", "opts": ["high commissions", "embassies", "consulates", "legations"], "a": 0}, {"q": "My _____ brother intends to get married in June.", "opts": ["senior", "elder", "older", "oldest"], "a": 1}, {"q": "The autocrat has not really described the cabinet as irresponsible, he only _____ of it in his speech.", "opts": ["alluded to", "implied", "applied", "suggested"], "a": 0}, {"q": "\"_____ at 9:30 for more news\", said the announcer.", "opts": ["Switch on", "Tune in", "Hook on", "Channel in"], "a": 1}, {"q": "Bernard's evidence led _____ Oliver being imprisoned for life.", "opts": ["at", "into", "in", "to"], "a": 3}, {"q": "We surely ought to have an _____ arrangement in case somebody discovers the present strategy.", "opts": ["alternate", "alternating", "alternative", "alternant"], "a": 2}, {"q": "A Tale of Two Cities _____ the novel we are studying for the examination.", "opts": ["are", "was", "were", "is"], "a": 3}, {"q": "In my opinion, neither the players nor the coach _____ praise for the result of the match.", "opts": ["deserves", "deserve", "are deserving", "is deserving"], "a": 0}, {"q": "No one has said anything yet, but I think I _____ be getting a salary increase next month.", "opts": ["must", "can", "would", "may"], "a": 3}, {"q": "Student: Excuse me Sir, must we complete the assignment before lunch? Teacher: No, you _____", "opts": ["needn't", "mustn't", "can't", "shouldn't"], "a": 0}, {"q": "Koko failed because the examination was _____ difficult for him.", "opts": ["so", "very", "highly", "too"], "a": 3}, {"q": "My brother does not have a flair _____ mathematics.", "opts": ["for", "in", "at", "to"], "a": 0}, {"q": "In which state is Nigeria's first (indigenous) university located?", "opts": ["Osun", "Nsukka", "Kaduna"], "a": 1}, {"q": "Who is the first female president of OPEC?", "opts": ["Obiageli Ezekwesili", "Diezani Alison-Madueke", "Malala Yusuf"], "a": 1}, {"q": "Which of the following is not an objective of the United Nations?", "opts": ["Maintaining International peace and security", "Promoting human right", "Eradication of hunger in security council member states", "Fostering social and economic development"], "a": 2}, {"q": "Which nations, according to the treaty on the non-proliferation of weapons, is regarded as nuclear weapon states?", "opts": ["China, Israel, north-Korea, Russia and united states", "China, united states, Russia, united kingdom and France", "United states, united kingdom, France, china and Germany", "India, Pakistan, Iran, china and Russia"], "a": 1}, {"q": "The only African state that is not a member of the African union is", "opts": ["Morocco", "Libya", "Niger", "Somalia"], "a": 0}, {"q": "Which of the following can be used to trace the genetic origin of an unknown baby?", "opts": ["Riboflavin", "RNA", "DNA", "Chromosome"], "a": 2}, {"q": "Generally, the application of scientific discoveries to produce gadgets and/or simpler ways of doing things is called", "opts": ["Engineering", "Technology", "Manufacture", "Computer"], "a": 1}, {"q": "The basic principles of waste management process revolve around", "opts": ["Reduction, recycling, reuse, recovery", "Archimedes principle", "Kyoto protocol", "London convention"], "a": 0}, {"q": "The fear of animals is usually referred to as", "opts": ["Zoophobia", "Aqua phobia", "Elephanphellus", "Craziphobia"], "a": 0}, {"q": "Boiling water in a pot reduced in quantity after some minutes of boiling because of one of these occurrences:", "opts": ["Expansion", "Absorption", "Evaporation", "Radiation"], "a": 2}, {"q": "Dogs are fish. Fish are warm-blooded. Therefore, dogs are warm-blooded. This argument is:", "opts": ["Invalid", "Valid but unsound", "Valid and sound", "Probable"], "a": 1}, {"q": "Every mother is a parent. Every father is distinct from every mother. Therefore, every father is distinct from every mother. This argument is:", "opts": ["Invalid", "Sound", "Valid", "B and C"], "a": 2}, {"q": "The flower is red. The flower is a rose. Therefore, the flower is a red rose. This is a:", "opts": ["Deductive argument", "Inductive argument", "Inferential argument", "Conceptual argument"], "a": 0}, {"q": "Akpan's parents sold their land to send him to school. If Akpan receives a low grade, he will not graduate. Akpan should receive a good grade so as to get a job and reclaim the land. This is a fallacy of", "opts": ["Appeal to pity", "Complex question", "Argumentation of inconsistency", "Secular argument"], "a": 0}, {"q": "If Smith is a senator, then he is over thirty years old. Smith is a senator. Therefore,", "opts": ["He may be over thirty years old.", "He is over thirty years old.", "He is not over thirty years old.", "He is within fifty years of age."], "a": 1}, {"q": "Which of the following is a premise indicator?", "opts": ["Therefore", "Hence", "Accordingly", "Because"], "a": 3}, {"q": "What is the logical characteristic of an inductive argument?", "opts": ["Argument from universal to particular", "The conclusion is probable", "Argument is from particular to universal", "From general to general"], "a": 1}, {"q": "The house has fallen into a state of despair and ill-repair. Its windows and doors are all fallen apart. It must have been once a beautiful one to look at.", "opts": ["The above expression is an argument", "The above expression is not an argument", "Not applicable", "All are correct"], "a": 0}, {"q": "You may believe what Professor Oti says about hazard allowance in the university, but he is a professor and would naturally favour lecturers' allowance. This is a fallacy of:", "opts": ["Argumentum ad hominem circumstantial", "Argumentum ad misericordiam", "Argumentum ad verecundiam", "All of the above"], "a": 0}, {"q": "Harvard is a first class university. Okon graduated from Harvard. Therefore, Okon is a first class material.", "opts": ["Valid", "Invalid", "None of these", "All of the above"], "a": 1}, {"q": "\"Man proposes, God disposes\" is an example of a(n)", "opts": ["Hologram", "proverb", "epigram", "byword"], "a": 1}, {"q": "The dean asked the secretary to _____ his dictation into written form.", "opts": ["Revocalize", "transcribe", "interprets", "re-key"], "a": 1}, {"q": "The rare _____ of a Chinua Achebe book was on display at the cultural centre.", "opts": ["Scriptorium", "manuscript", "inscription", "epilogue"], "a": 1}, {"q": "The description of the cold weather was so _____ that we began to shiver.", "opts": ["Graphic", "informative", "descriptive", "explanatory"], "a": 0}, {"q": "Books were once written by hand in a(n) _____", "opts": ["Library", "histogram", "scriptorium", "museum"], "a": 2}, {"q": "In a party, there are 3 boys and 4 girls. In how many different ways can they dance (in pairs)?", "opts": ["24", "12", "29", "18"], "a": 0}, {"q": "If the elements of a series are 1,3,2,4,3,7,5,11,8,18,13... then the next element is", "opts": ["19", "21", "29"], "a": 2}, {"q": "If a sweet costs N2.00, a chocolate costs N3.00, a cake costs N5.00 and a mango costs N10.00, you buy at least one of each item and as many sweets as possible from N50.00. The number of sweets you buy is:", "opts": ["16", "12", "18", "14"], "a": 0}, {"q": "A man has N2000.00 in his account. He saves monthly N3500.00; one day he notices he has N86,000.00 in his account. This happened after a period of", "opts": ["10 months", "40 months", "24 months", "30 months"], "a": 2}, {"q": "Mario purchases 5 equally priced videotapes and a $20 DVD. He spends a total of $45. Which equation determines v, the cost of each videotape?", "opts": ["5v - 20 = 45", "45 x 5v = 20", "5v + 20 = 45", "5v x 20 = 45"], "a": 2}, {"q": "Tonya needs to be at a party at 7:00pm. She wants to exercise for 3/4 hour, clean her room for 25 minutes, and walk 15 minutes. Best strategy to find the latest start time:", "opts": ["Work backward using the information", "Measure the distance to the party in miles", "Calculate the rate at which Tonya walks", "Multiply the rate Tonya walks by the distance"], "a": 0}, {"q": "If n^2 is even, then n is:", "opts": ["divisible by 4", "odd", "even", "equal to (4k + 2)"], "a": 2}, {"q": "A program that can copy itself and infect a computer without the permission or knowledge of the owner is called what?", "opts": ["Floppy", "virus", "java", "monitor"], "a": 1}, {"q": "How many bytes make one KILOBYTE?", "opts": ["1000", "1001", "1024", "1100"], "a": 2}, {"q": "What is the full meaning of www?", "opts": ["Worldwide window", "wide world web", "worldwide wardrobe world wide web", "world wide web"], "a": 3}, {"q": "MS-WORD is an example of _____", "opts": ["Application software", "system software", "operating system", "scanner"], "a": 0}, {"q": "In computers, what is the smallest and basic unit of information?", "opts": ["Byte", "megabyte", "bit", "gigabyte"], "a": 2}, {"q": "Which of the following is NOT an internet mail service organization?", "opts": ["Yahoo", "Google", "AOL", "exordia"], "a": 3}, {"q": "Who is regarded as the father of computers?", "opts": ["Steve Jobs", "Charles Babbage", "Bill Gates", "Elvis Presley"], "a": 1}, {"q": "What does HTTP stand for?", "opts": ["Hypertext transfer protocol", "High technology transmission program", "Head tail transfer plot", "Head tail transfer protocol"], "a": 0}, {"q": "The oldest local government area in Nigeria is?", "opts": ["Okrika", "Calabar municipality", "Ikot Ekpene", "Zing"], "a": 1}, {"q": "The present national anthem was introduced in", "opts": ["October, 1980", "October, 1979", "December, 1983", "May 29, 2024 / October 1, 2024"], "a": 1}, {"q": "One of these persons was not senate president in Nigeria:", "opts": ["Chuba Okadigbo", "None of the listed", "Pius Anyim", "Nwafor Orizu"], "a": 1}, {"q": "The minister for youth and sport is", "opts": ["Sulaiman Adamu", "Kayode Fayemi", "Chris Ngige", "Solomon Dalong"], "a": 3}, {"q": "One of these foods has the highest energy:", "opts": ["Minerals", "Fat and oil", "carbohydrate", "protein"], "a": 1}, {"q": "Africa is divided into two halves by", "opts": ["Capricorn", "Equator", "Longitude", "Latitude"], "a": 1}, {"q": "The Ebola virus disease was brought into Nigeria by", "opts": ["Patrick Sawyer", "Paul Simon Dickson", "Samuel Peterson", "Philip Sow"], "a": 0}, {"q": "The minister of state for education is", "opts": ["Geoffrey Onyeama", "Mallam Adamu Adamu", "Mr. Anthony Onwuka", "Osagie Ehanire"], "a": 2}, {"q": "One of these is not a nutrient:", "opts": ["Minerals", "protein", "water", "fibers"], "a": 3}, {"q": "Nigeria has a total of _____", "opts": ["1,805.759 square kilometers of space", "1,806.758 square kilometers of space", "923,768 square kilometers of space", "750,000 square kilometers of space"], "a": 2}, {"q": "The flowers in the coat of arms represent", "opts": ["Beauty of Nigeria", "Nigeria's mineral resource", "Fertility of the soil", "Agricultural endowment"], "a": 2}, {"q": "The first African secretary of the Commonwealth is", "opts": ["Chief Festus Okotie-Eboh", "Chief Michael Okpara", "Cyprian Ekwensi", "Sir Emeka Anyaoku"], "a": 3}, {"q": "Choose the odd option (all served as CBN Governor):", "opts": ["Clement Isong", "Samuel Lamido Sanusi", "Aliyu Mai Bornu", "None of the following"], "a": 3}, {"q": "The Nigerian state severed its ties with Britain and the true first Nigerian republic was born in", "opts": ["1961", "1959", "1963", "1960"], "a": 2}, {"q": "It is high time you _____ stop crying, the woman told her daughter gently.", "opts": ["Stop", "Stopped", "Must stop", "Should stop"], "a": 1}, {"q": "The proscription of the students union was to nip the planned demonstration in the bud. This means that proscription was meant to", "opts": ["Prevent the proposed demonstration", "Disorganize the students", "Keep the students on the alert", "Punish the students"], "a": 0}, {"q": "After the war the visitors became increasingly vindictive.", "opts": ["Treacherous", "Arrogant", "Vociferous", "Friendly"], "a": 0}, {"q": "The day that Musa's uncle died was the _____ day of his life.", "opts": ["More saddest", "Saddest", "More sad", "Most saddest"], "a": 1}, {"q": "The potency of the drugs has been acknowledged.", "opts": ["Inefficacy", "Power", "Action", "loss"], "a": 1}, {"q": "The officer urged the soldiers to gird up their loins for the task ahead. This means that the soldiers should", "opts": ["Be on full alert", "Guard their hungry loins", "Wear new battle uniform", "Wake up early the next morning"], "a": 0}, {"q": "A sand dune, which is a natural phenomenon, could not be mistaken for a tunnel which is _____", "opts": ["False", "Artificial", "Modern", "Supernatural"], "a": 1}, {"q": "Some senators favored the new budget proposal and in the warmest terms _____ the measure. Others disliked the idea and just as vehemently _____ against its adoption.", "opts": ["Seditious...ameliorate", "assuaged... interceded", "wheedled... enjoined", "Exhorted... inveighed"], "a": 3}, {"q": "A(n) _____ government will prove workable only so long as its members are able to _____ party differences.", "opts": ["Provincial...surmises", "ex-officio...abominate", "coalition ... transcend", "Elicited...infringed"], "a": 2}, {"q": "Though my teaching job entails numerous _____ responsibilities, it also brings with it certain _____, one of which is the right to use school equipment, services and facilities during breaks or the long vacation.", "opts": ["Prerogatives... hiatus", "simulations... millennia", "surmises ... innuendos", "Ameliorations... proclivities"], "a": 0}, {"q": "You would probably be disconsolate if you _____", "opts": ["Added all the words in the program to your active vocabulary", "Checked the word origin in a dictionary", "did poorly on this final mastery test", "came across some of the works of a favorite writer"], "a": 2}, {"q": "Now most adults drive everywhere. (tense)", "opts": ["Past tense", "future tense", "present tense", "present perfect tense"], "a": 2}, {"q": "The discoveries have inspired new researchers. (tense)", "opts": ["Past perfect tense", "past tense", "present past tense", "present perfect tense"], "a": 3}, {"q": "The students will have left home by the end of this year. (tense)", "opts": ["Past continuous tense", "Past perfect tense", "Future perfect tense", "Present perfect continuous tense"], "a": 2}, {"q": "Traffic engineers are improving mass transportation. (tense)", "opts": ["Present perfect tense", "Future tense", "Present continuous tense", "Past continuous tense"], "a": 2}, {"q": "The boy had been reading since morning. (tense)", "opts": ["Past continuous tense", "past perfect tense", "past perfect continuous tense", "present perfect continuous tense"], "a": 2}, {"q": "Some scientists predict that plant-based fuels and oils _____ petroleum in the not too distant future.", "opts": ["Would replace", "will replace", "have replaced", "had replaced"], "a": 1}, {"q": "A medical worker also known as a health care provider _____", "opts": ["is", "are", "were", "none of the above"], "a": 0}, {"q": "But the story of their lives _____ worth filming also.", "opts": ["is", "has", "are", "have"], "a": 0}, {"q": "City workers are getting off the train. _____ tired after a long day's work.", "opts": ["Their", "there", "they're", "the're"], "a": 2}, {"q": "_____ not going to believe this story about a loyal friend.", "opts": ["you", "your", "you're"], "a": 2}, {"q": "_____ your best friend?", "opts": ["Whom", "Who", "Whose", "Which"], "a": 1}, {"q": "Paul gave _____ extra copy to Mary.", "opts": ["her", "him", "he", "his"], "a": 0}, {"q": "_____ did a report on peer pressure.", "opts": ["Bisong and I", "me and Bisong", "I and Bisong", "Bisong and me"], "a": 0}, {"q": "The coach, like the rest of us, is enjoying _____", "opts": ["Ourselves", "themselves", "himself", "herself"], "a": 2}, {"q": "Peer pressure can be negative, but _____ positive too, you know.", "opts": ["its", "its", "it's", "it"], "a": 2}, {"q": "_____ can resist the pressure of family.", "opts": ["Who", "which", "whose", "whomever"], "a": 0}, {"q": "The UNESCO benchmark for fiscal allocation to the education sector is", "opts": ["30%", "16%", "10%", "26%"], "a": 3}, {"q": "Which of the following is not one of the millennium development goals?", "opts": ["Promote gender equality and empower women", "achieve universal primary education", "eradicate extreme poverty and hunger", "eradicate wars and terrorism"], "a": 3}, {"q": "Which of the following is not a water borne disease?", "opts": ["Typhoid", "dysentery", "cholera", "malaria"], "a": 3}, {"q": "Soil erosion can be prevented through", "opts": ["Crop rotation", "forestation", "growing cover crops", "all of the above"], "a": 3}, {"q": "What is the significance of the year 1914 in the history of Nigeria?", "opts": ["It is the year Mungo Park discovered river Niger", "It is the year of amalgamation of the northern and southern protectorate of Nigeria", "It is the year British rule started in Nigeria", "It is the year the first missionary primary school was established in Badagry"], "a": 1}, {"q": "The power to make laws in a presidential system of government is vested in", "opts": ["The executive", "the legislative", "the judiciary", "the public force"], "a": 1}, {"q": "Who is the chief justice of Nigeria?", "opts": ["Justice Mary Odili", "Justice S.M.A Belgore", "Justice Aloysius Iyoryer Katsina-Alu", "Justice Aloma Maryann Mukhtar"], "a": 3}, {"q": "The national assembly in Nigeria is made up of", "opts": ["100 senators, 300 members house of representatives", "109 senators, 360 members house of representatives", "200 senators, 400 members house of representatives", "150 senators, 365 members house of representatives"], "a": 1}, {"q": "The 2012 Olympic games was held in", "opts": ["New York City", "London", "Rio de Janeiro", "Vancouver"], "a": 1}, {"q": "Recently the former Nigerian vice presidential aspirant Alhaji Atiku Abubakar was defeated in the _____ primaries.", "opts": ["NNPC", "APC", "PDP", "SDP"], "a": 2}, {"q": "Select the correct spelling:", "opts": ["altruistic", "altrucrtic", "altruisstic", "altristick"], "a": 0}, {"q": "Select the correct spelling:", "opts": ["capriscious", "capricious", "caperecious", "ceprisious"], "a": 1}, {"q": "Select the correct spelling:", "opts": ["entrepreneur", "entreprineur", "entrpreneur", "enterprineur"], "a": 0}, {"q": "Select the correct spelling:", "opts": ["matriculousness", "meticlulossness", "meticulousness", "meticullousness"], "a": 2}, {"q": "Select the correct spelling:", "opts": ["Psudonymn", "pseudonym", "seedonym", "pseudonim"], "a": 1}, {"q": "An act or situation of injustice and unfairness defines the word", "opts": ["Inequality", "iniquity", "iniquitous", "inequality"], "a": 1}, {"q": "Equal balance means", "opts": ["Equidistant", "equality", "equilibrium", "equate"], "a": 2}, {"q": "A wise leader does not _____ disagreement with disloyalty.", "opts": ["Egalitarian", "equals", "equate", "unequivocal"], "a": 2}, {"q": "A bachelor's degree is the minimum _____ for this job.", "opts": ["perquisite", "requisition", "inequest", "prerequisite"], "a": 3}, {"q": "Eager for knowledge, given to inquiry or research, curious, nosy, prying refer to a(n) _____", "opts": ["inquest", "query", "inquisition", "inquisitive"], "a": 3}, {"q": "Richard displayed his collection at the meeting of people who collect coins.", "opts": ["Numismatists", "Curators", "Artists", "Anthropologists", "Historians"], "a": 0}, {"q": "Most of his observations were wide off the mark.", "opts": ["Incredulous", "Credulous", "Credible", "Incredible", "Ridiculous"], "a": 3}, {"q": "More people in the world are getting too fat from eating junk food.", "opts": ["Healthy", "Obese", "Hungry", "Lanky", "Sturdy"], "a": 1}, {"q": "For one to attain the rank of professor is a remarkable _____", "opts": ["Achievement", "Archievement", "Archeivemment", "Achlevement"], "a": 0}, {"q": "One of the following is the cause of computer virus:", "opts": ["Exposing the computer to dust", "Use of pirated software", "Touching computer with water", "Exposing computer to heat", "None"], "a": 1}, {"q": "No matter how short a dissertation, the inclusion of _____", "opts": ["Foreword", "Index", "Footnotes", "Acknowledgement", "Endnotes"], "a": 2}, {"q": "A sure way of getting hostel accommodation is to engage in _____", "opts": ["Arthleitics", "Arthletics", "Athletics", "Athilectics", "Attlletics"], "a": 2}, {"q": "Have you read Achebe's _____", "opts": ["Thing fall apart", "Things Fall Apart", "Things fall Apart", "Things Fall apart", "Things FALL Apart"], "a": 1}, {"q": "Propositions that are supported in an argument are called", "opts": ["Conclusion", "Premises", "Minor premise", "Major premise"], "a": 1}, {"q": "The editor was sued for publishing a _____ article in the national daily.", "opts": ["Libelous", "Reckless", "Factual", "Entertaining", "Damaging"], "a": 0}, {"q": "Each of the students will receive _____ own directions.", "opts": ["His", "There", "Their", "Theirs", "Its"], "a": 2}, {"q": "The president said that the untimely demise of Sam Loco Effa was a grave loss to Hollywood. This means:", "opts": ["Sam Loco was missing from Hollywood", "The unexpected death of Sam Loco would destroy Hollywood adversely", "The disappearance of Sam Loco would affect Hollywood very much", "Hollywood was irresponsible to have lost Sam Loco", "Hollywood had lost a famous artist by the death of Sam Loco"], "a": 4}, {"q": "If you asked me, I would rather have no light than no water. This means:", "opts": ["It is preferable that there should be water supply", "Water fetching is tedious"], "a": 0}, {"q": "The latest independent state in Africa is", "opts": ["Libya", "Sudan", "Democratic republic of Congo", "South Sudan", "Egypt"], "a": 3}, {"q": "In the telecommunications world, SMS means", "opts": ["Speedy message sending", "Short message sending", "Sending message speedy", "Send message speedily", "None of the above"], "a": 1}, {"q": "We talked quietly, _____ the three of us.", "opts": ["Between", "Around", "Behind", "Before", "Among"], "a": 4}, {"q": "The test ended _____ than I had hoped.", "opts": ["Sooner", "Quicker", "Soonest", "Quickly", "Soon"], "a": 0}, {"q": "Does _____ dog bite?", "opts": ["You're", "You'r", "Yours", "Your"], "a": 3}, {"q": "The fallacy that occurs when instead of attacking the argument of your opponent you attack his character is called", "opts": ["Reification", "Division", "Argumentum ad hominem", "Argumentum ad populum"], "a": 2}, {"q": "As Mr. Ukpe looked at his x-ray report, he knew it was high time he _____", "opts": ["Stop smoking", "Stop to smoke", "Stopped smoking", "Has to stop smoking", "Had stopped smoking"], "a": 2}, {"q": "Not only strong, _____ also graceful, the eagle is a beautiful bird.", "opts": ["And", "Or", "For", "However", "But"], "a": 4}, {"q": "I have enough money for popcorn _____ juice.", "opts": ["Either... nor", "Either... or", "Neither... nor", "Either... for", "Neither... or"], "a": 1}, {"q": "The party campaign was based on rumor and _____", "opts": ["Innendo", "Inuendo", "Innuendo", "Inueendoe", "Inneundo"], "a": 2}, {"q": "By November 8, the students union government _____ new president.", "opts": ["Will had elected", "Shall have elected", "Shall had erected", "Would elect"], "a": 1}, {"q": "Which of the following is not a search engine for browsing?", "opts": ["Google", "Yahoo", "Ask", "MSN", "E-mail"], "a": 4}, {"q": "The changes in the environment and some aspects of world weather is referred to as", "opts": ["Globalization", "Climate change", "Environmental changes", "Shift in the ozone layer", "Destruction by flood"], "a": 1}, {"q": "The following are sources of energy except", "opts": ["Sand", "Water", "Sun", "Wind", "Coal"], "a": 0}, {"q": "The dean _____ from his chair to greet us.", "opts": ["Raised", "Arose", "Risen", "Rise", "Rose"], "a": 4}, {"q": "Which of these is NOT a basic mouse operation?", "opts": ["Clicking an icon", "Double-clicking an icon/item", "Right-clicking an icon/item", "General user input", "None of the above"], "a": 3}, {"q": "The zoo curator said that many species of animals are endangered.", "opts": ["Migrating", "Extinct", "Adapting", "Hibernating", "Imperiled"], "a": 4}, {"q": "Rain forests harbor millions of animals and plant species.", "opts": ["Endanger", "Number", "Contain", "Collect", "Shelter"], "a": 4}, {"q": "Minimum wage means", "opts": ["The highest amount to be paid any worker", "The exact amount a worker should be paid", "The least amount a worker should be paid", "The salary for junior workers", "None of the above"], "a": 2}, {"q": "The immediate past EFCC chairman is", "opts": ["Nuhu Ribadu", "Farida Waziri", "Sanusi Lamido Sanusi", "Dora Akunyili", "Oby Ezekwesili"], "a": 1}, {"q": "The mainstay (occupation) of Nigeria is", "opts": ["Crude oil sales", "Manufacturing", "Small scale businesses", "Commerce", "Agriculture"], "a": 4}, {"q": "The present democratic dispensation started on", "opts": ["29th May, 2011", "1st October, 1960", "1st October, 1999", "1st October, 1963", "29th May, 1999"], "a": 4}, {"q": "In Nigeria, the fifth person according to protocol is", "opts": ["Wife of the president", "The senate president", "The speaker of the house of representatives", "The chief justice of the federation", "The secretary to the government of the federation"], "a": 4}, {"q": "The Nigerian armed forces is made up principally of", "opts": ["Navy, army, and air force", "Navy, police and air force", "Road safety corps, army and police", "None of the above"], "a": 0}, {"q": "Choose the word opposite in meaning to the underlined: Mr. Johnson is loved for his altruism.", "opts": ["Selflessness", "Kindness", "Selfishness", "Benevolence", "Sincerity"], "a": 2}, {"q": "The ID card entitles you to attend lectures as a graduate student. (opposite of 'entitles')", "opts": ["Discourage", "Disenchants", "Entails", "Disqualifies", "Restricted"], "a": 3}];
+const LETTERS = ['A','B','C','D','E'];
+
+let current = 0;
+let score = 0;
+let answered = false;
+let userAnswers = new Array(QUESTIONS.length).fill(null);
+
+const content = document.getElementById('content');
+const progressFill = document.getElementById('progressFill');
+const scoreRow = document.getElementById('scoreRow');
+
+function renderQuestion(){
+  answered = false;
+  const q = QUESTIONS[current];
+  progressFill.style.width = ((current)/QUESTIONS.length*100) + '%';
+  scoreRow.textContent = `Score so far: ${score} correct of ${current} answered`;
+
+  let optsHtml = q.opts.map((opt,i) => `
+    <button class="opt" data-idx="${i}">
+      <span class="letter">${LETTERS[i]}</span>
+      <span>${opt}</span>
+    </button>
+  `).join('');
+
+  content.innerHTML = `
+    <div class="meta-row">
+      <span><span class="num">Question ${current+1}</span> of ${QUESTIONS.length}</span>
+      <span>${current+1<=170?'':''}</span>
+    </div>
+    <p class="question">${q.q}</p>
+    <div class="options">${optsHtml}</div>
+    <div class="feedback" id="feedback"></div>
+    <div class="next-row"><button class="next-btn" id="nextBtn">Next Question &rarr;</button></div>
+  `;
+
+  content.querySelectorAll('.opt').forEach(btn => {
+    btn.addEventListener('click', () => selectOption(parseInt(btn.dataset.idx)));
+  });
+  document.getElementById('nextBtn').addEventListener('click', goNext);
+}
+
+function selectOption(idx){
+  if(answered) return;
+  answered = true;
+  const q = QUESTIONS[current];
+  userAnswers[current] = idx;
+  const isCorrect = idx === q.a;
+  if(isCorrect) score++;
+
+  content.querySelectorAll('.opt').forEach((btn,i) => {
+    btn.disabled = true;
+    if(i === q.a){ btn.classList.add('correct'); }
+    else if(i === idx){ btn.classList.add('wrong'); }
+    else { btn.classList.add('dim'); }
+  });
+
+  const fb = document.getElementById('feedback');
+  if(isCorrect){
+    fb.textContent = 'Correct.';
+    fb.className = 'feedback correct';
+  } else {
+    fb.textContent = `Not quite — the answer is ${LETTERS[q.a]}. ${q.opts[q.a]}`;
+    fb.className = 'feedback wrong';
+  }
+  document.getElementById('nextBtn').classList.add('show');
+  scoreRow.textContent = `Score so far: ${score} correct of ${current+1} answered`;
+}
+
+function goNext(){
+  current++;
+  if(current >= QUESTIONS.length){
+    renderResults();
+  } else {
+    renderQuestion();
+  }
+}
+
+function remarkFor(pct){
+  if(pct >= 85) return "An outstanding sitting — the kind of score that gets you straight through screening.";
+  if(pct >= 70) return "A strong performance. A little more polish on the weaker sections and this is comfortably a pass.";
+  if(pct >= 50) return "A fair showing. Go back over the sections where you slipped and try again.";
+  return "Rough sitting, but this was a genuinely wide-ranging paper. Review the sections below and have another go.";
+}
+
+function renderResults(){
+  progressFill.style.width = '100%';
+  const pct = Math.round((score/QUESTIONS.length)*100);
+
+  // simple sectioning by index ranges for a breakdown
+  const sections = [
+    {name:'Vocabulary & Usage', from:0, to:39},
+    {name:'General Knowledge & Civics', from:40, to:83},
+    {name:'Logic & Reasoning', from:84, to:98},
+    {name:'Quantitative & Computing', from:99, to:120},
+    {name:'Reading & Interpretation', from:121, to:169}
+  ];
+  const catHtml = sections.map(s => {
+    let correct=0, total=0;
+    for(let i=s.from;i<=Math.min(s.to,QUESTIONS.length-1);i++){
+      total++;
+      if(userAnswers[i]===QUESTIONS[i].a) correct++;
+    }
+    const p = total? Math.round(correct/total*100) : 0;
+    return `<div class="cat">
+      <span style="flex:0 0 150px; text-align:left;">${s.name}</span>
+      <span class="barbg"><span class="barfill" style="width:${p}%"></span></span>
+      <span style="flex:0 0 46px; text-align:right;">${correct}/${total}</span>
+    </div>`;
+  }).join('');
+
+  let missedHtml = '';
+  const missed = [];
+  for(let i=0;i<QUESTIONS.length;i++){
+    if(userAnswers[i]!==QUESTIONS[i].a){
+      missed.push(i);
+    }
+  }
+  if(missed.length){
+    missedHtml = `<div class="review"><h3>Questions to revisit (${missed.length})</h3>` +
+      missed.map(i => {
+        const q = QUESTIONS[i];
+        const yours = userAnswers[i]===null ? 'skipped' : `${LETTERS[userAnswers[i]]}. ${q.opts[userAnswers[i]]}`;
+        return `<div class="review-item">
+          <div class="rq">${i+1}. ${q.q}</div>
+          <div class="ra miss">Your answer: ${yours}</div>
+          <div class="ra"><span class="correctline">Correct: ${LETTERS[q.a]}. ${q.opts[q.a]}</span></div>
+        </div>`;
+      }).join('') + `</div>`;
+  }
+
+  content.innerHTML = `
+    <div class="results">
+      <div class="label">Final Result</div>
+      <div class="tally">${score}<small>&nbsp;/&nbsp;${QUESTIONS.length}</small></div>
+      <div class="label" style="margin-top:6px; color:#8a7f68;">${pct}% correct</div>
+      <p class="remark">${remarkFor(pct)}</p>
+      <div class="bar-wrap">${catHtml}</div>
+      <div class="actions">
+        <button class="btn-solid" id="retryBtn">Retake the Paper</button>
+      </div>
+      ${missedHtml}
+    </div>
+  `;
+  scoreRow.textContent = '';
+  document.getElementById('retryBtn').addEventListener('click', restart);
+}
+
+function restart(){
+  current = 0; score = 0; answered = false;
+  userAnswers = new Array(QUESTIONS.length).fill(null);
+  renderQuestion();
+}
+
+renderQuestion();
+</script>
+</body>
+</html>
